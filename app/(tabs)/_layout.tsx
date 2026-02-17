@@ -13,6 +13,12 @@ export default function TabsLayout() {
           title: 'Today',
         }}
       />
+      <Tabs.Screen
+        name="debug"
+        options={{
+          title: 'Debug DB',
+        }}
+      />
     </Tabs>
   )
 }

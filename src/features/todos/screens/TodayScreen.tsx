@@ -6,7 +6,7 @@ export default function TodayScreen() {
   useEffect(() => {
     async function testDb() {
       console.log('Creating todo...')
-      await todosRepository.create('Primeira tarefa 🎉')
+      await todosRepository.create('Primeira tarefa 🎉', 'Nothing to do here')
 
       const all = await todosRepository.getAll()
       console.log('Todos in DB:', all)
