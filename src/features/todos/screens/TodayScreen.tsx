@@ -16,14 +16,13 @@ export default function TodayScreen() {
   }, [])
 
   return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Text>Today</Text>
+    <View className="flex-1 items-center justify-center bg-paper">
+      <Text className="text-textMain text-xl font-title">NativeWind Added</Text>
+      <View className="flex-1 bg-paper">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <View key={i} className="h-row border-b border-line" />
+        ))}
+      </View>
     </View>
   )
 }

@@ -3,6 +3,7 @@ import { notifications } from '@/db/schema/notifications.schema'
 import { tags } from '@/db/schema/tags.schema'
 import { todoTags } from '@/db/schema/todoTags.schema'
 import { todos } from '@/db/schema/todos.schema'
+import { BackButton } from '@/shared/components/BackButton'
 import { ScreenArea } from '@/shared/components/ScreenArea'
 import { useCallback, useEffect, useState } from 'react'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
@@ -44,6 +45,7 @@ export default function DebugDbScreen() {
 
   return (
     <ScreenArea>
+      <BackButton />
       <ScrollView style={styles.container}>
         <Text style={styles.title}>Debug Database</Text>
 
