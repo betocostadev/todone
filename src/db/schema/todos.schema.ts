@@ -5,8 +5,8 @@ export const todos = sqliteTable(
   'todos',
   {
     id: text('id').primaryKey(),
-
-    parentId: text('parent_id'),
+    // For subtasks
+    parentId: text('parent_id'), // nullable by design
 
     title: text('title', { length: 128 }).notNull(),
     note: text('note', { length: 512 }),
