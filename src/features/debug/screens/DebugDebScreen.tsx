@@ -1,3 +1,4 @@
+import { listsRepository } from '@/features/lists/repository/lists.repository'
 import { tagsRepository } from '@/features/tags/repository/tags.repository'
 import { todosRepository } from '@/features/todos/repository/todos.repository'
 import { BackButton } from '@/shared/components/BackButton'
@@ -15,6 +16,49 @@ export default function DebugDbScreen() {
     notifications: [],
     todoTags: [],
   })
+
+  const tagNames = [
+    'study',
+    'health',
+    'programming',
+    'job',
+    'mental',
+    'minor',
+    'major',
+    'tax',
+    'chore',
+    'errand',
+    'project',
+    'goals',
+  ]
+
+  const listNames = [
+    'Chores',
+    'Work',
+    'House Things',
+    'Market',
+    'Taxes',
+    'Car',
+    'Development',
+    'Shopping',
+    'Learning',
+  ]
+
+  const getRandomName = (type: string) => {
+    const max = type === 'Tag' ? tagNames.length : listNames.length
+    const choice = Math.floor(Math.random() * (max + 1))
+    return type === 'Tag' ? tagNames[choice] : listNames[choice]
+  }
+
+  const getNotInboxListId = (): (typeof data.lists)[number] | undefined => {
+    const match = data.lists.find(
+      (l: typeof data.lists) => l.title.toLowerCase() !== 'inbox',
+    )
+
+    if (!match) return undefined
+
+    return match.id
+  }
 
   const loadData = useCallback(async () => {
     const result = await debugRepository.getRawData()
@@ -36,9 +80,39 @@ export default function DebugDbScreen() {
       <ScrollView style={styles.container}>
         <Text style={styles.title}>Debug Database</Text>
 
+        <Text style={styles.title}>Database Main</Text>
         <View style={styles.buttons}>
           <Pressable style={styles.button} onPress={loadData}>
             <Text style={styles.buttonText}>Refresh</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.button, styles.dangerButton]}
+            onPress={clearDatabase}
+          >
+            <Text style={styles.buttonText}>Clear DB</Text>
+          </Pressable>
+        </View>
+
+        <Text style={styles.title}>Items</Text>
+        <View style={styles.buttons}>
+          <Pressable
+            style={styles.button}
+            onPress={async () => {
+              try {
+                await listsRepository.create(
+                  getRandomName('List'),
+                  '📱',
+                  '#6366f1',
+                )
+              } catch (e) {
+                console.log('Create list error: ', e)
+              }
+
+              await loadData()
+            }}
+          >
+            <Text style={styles.buttonText}>Create List</Text>
           </Pressable>
 
           <Pressable
@@ -61,9 +135,29 @@ export default function DebugDbScreen() {
 
           <Pressable
             style={styles.button}
+            disabled={!getNotInboxListId()}
             onPress={async () => {
               try {
-                await tagsRepository.create('Work')
+                await todosRepository.create(
+                  `Task ${Date.now()}`,
+                  'Debug task inside a new list',
+                  getNotInboxListId(),
+                )
+              } catch (e) {
+                console.log('Create task error:', e)
+              }
+
+              await loadData()
+            }}
+          >
+            <Text style={styles.buttonText}>Create Task in List</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.button}
+            onPress={async () => {
+              try {
+                await tagsRepository.create(getRandomName('Tag'))
               } catch (e) {
                 console.log('Tag error:', e)
               }
@@ -71,13 +165,6 @@ export default function DebugDbScreen() {
             }}
           >
             <Text style={styles.buttonText}>Add Unique Tag</Text>
-          </Pressable>
-
-          <Pressable
-            style={[styles.button, styles.dangerButton]}
-            onPress={clearDatabase}
-          >
-            <Text style={styles.buttonText}>Clear DB</Text>
           </Pressable>
         </View>
 
@@ -106,6 +193,7 @@ function Section({ title, data }: { title: string; data: any[] }) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   title: { fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
+  subtitle: { fontSize: 15, fontWeight: 'semibold', marginBottom: 14 },
   buttons: {
     flexDirection: 'row',
     flexWrap: 'wrap',
