@@ -56,6 +56,43 @@ export const todosRepository = {
     return id
   },
 
+  async moveToList(todoId: string, toListId: string) {
+    // get current list
+    const current = await db
+      .select()
+      .from(listTodos)
+      .where(eq(listTodos.todoId, todoId))
+
+    if (!current.length) {
+      throw new Error('Todo not linked to any list')
+    }
+
+    const fromListId = current[0].listId
+
+    if (fromListId === toListId) return
+
+    // remove from pivot
+    await db
+      .delete(listTodos)
+      .where(
+        and(eq(listTodos.todoId, todoId), eq(listTodos.listId, fromListId)),
+      )
+
+    const result = await db
+      .select({ maxPosition: max(listTodos.position) })
+      .from(listTodos)
+      .where(eq(listTodos.listId, toListId))
+
+    const nextPosition = (result[0]?.maxPosition ?? -1) + 1
+
+    // insert new pivot
+    await db.insert(listTodos).values({
+      listId: toListId,
+      todoId,
+      position: nextPosition,
+    })
+  },
+
   async getAll() {
     return await db.select().from(todos)
   },

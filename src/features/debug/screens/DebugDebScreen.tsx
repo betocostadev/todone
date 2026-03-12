@@ -44,6 +44,8 @@ export default function DebugDbScreen() {
     'Learning',
   ]
 
+  const TASK_TO_MOVE_TITLE = 'Move Task'
+
   const getRandomName = (type: string) => {
     const max = type === 'Tag' ? tagNames.length : listNames.length
     const choice = Math.floor(Math.random() * (max + 1))
@@ -58,6 +60,15 @@ export default function DebugDbScreen() {
     if (!match) return undefined
 
     return match.id
+  }
+
+  const taskToMoveExists = () => {
+    const task = data.todos.find(
+      (td: typeof data.todos) => td.title === TASK_TO_MOVE_TITLE,
+    )
+
+    if (task) return true
+    return false
   }
 
   const loadData = useCallback(async () => {
@@ -94,7 +105,7 @@ export default function DebugDbScreen() {
           </Pressable>
         </View>
 
-        <Text style={styles.title}>Items</Text>
+        <Text style={styles.title}>Create items</Text>
         <View style={styles.buttons}>
           <Pressable
             style={styles.button}
@@ -155,6 +166,25 @@ export default function DebugDbScreen() {
 
           <Pressable
             style={styles.button}
+            disabled={taskToMoveExists()}
+            onPress={async () => {
+              try {
+                await todosRepository.create(
+                  TASK_TO_MOVE_TITLE,
+                  'Task to be moved between lists',
+                )
+              } catch (e) {
+                console.log('Create task error:', e)
+              }
+
+              await loadData()
+            }}
+          >
+            <Text style={styles.buttonText}>Create MOVE Task</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.button}
             onPress={async () => {
               try {
                 await tagsRepository.create(getRandomName('Tag'))
@@ -165,6 +195,44 @@ export default function DebugDbScreen() {
             }}
           >
             <Text style={styles.buttonText}>Add Unique Tag</Text>
+          </Pressable>
+        </View>
+
+        <Text style={styles.title}>Handle items</Text>
+        <View style={styles.buttons}>
+          <Pressable
+            style={styles.button}
+            disabled={!taskToMoveExists()}
+            onPress={async () => {
+              try {
+                const todos = data.todos
+                const lists = data.lists
+
+                const todo = todos.find(
+                  (td: typeof data.todos) => td.title === TASK_TO_MOVE_TITLE,
+                )
+                const targetList = lists.find(
+                  (l: typeof data.lists) => !l.isSystem,
+                )
+
+                if (!todo || !targetList) {
+                  console.log('Missing todo or target list')
+                  return
+                }
+
+                await todosRepository.moveToList(todo.id, targetList.id)
+
+                console.log(
+                  `Task ${TASK_TO_MOVE_TITLE} moved to list ${targetList.title}`,
+                )
+              } catch (e) {
+                console.log('Move todo error: ', e)
+              }
+
+              await loadData()
+            }}
+          >
+            <Text style={styles.buttonText}>Move Test Task</Text>
           </Pressable>
         </View>
 

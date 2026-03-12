@@ -1,4 +1,5 @@
 import { db } from '@/db/client'
+import { ensureInbox } from '@/db/init'
 import { lists } from '@/db/schema/lists.schema'
 import { listTodos } from '@/db/schema/listTodos.schema'
 import { notifications } from '@/db/schema/notifications.schema'
@@ -26,10 +27,15 @@ export const debugRepository = {
   },
 
   async clearAll() {
-    await db.delete(todoTags)
-    await db.delete(notifications)
-    await db.delete(tags)
-    await db.delete(listTodos)
-    await db.delete(todos)
+    await db.transaction(async (tx) => {
+      await tx.delete(todoTags)
+      await tx.delete(notifications)
+      await tx.delete(tags)
+      await tx.delete(listTodos)
+      await tx.delete(todos)
+      await tx.delete(lists)
+    })
+
+    await ensureInbox()
   },
 }
