@@ -1,4 +1,5 @@
 import { listsRepository } from '@/features/lists/repository/lists.repository'
+import { listsService } from '@/features/lists/services/lists.service'
 import { tagsRepository } from '@/features/tags/repository/tags.repository'
 import { todosRepository } from '@/features/todos/repository/todos.repository'
 import { BackButton } from '@/shared/components/BackButton'
@@ -233,6 +234,27 @@ export default function DebugDbScreen() {
             }}
           >
             <Text style={styles.buttonText}>Move Test Task</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.button}
+            onPress={async () => {
+              const customList = data.lists.find(
+                (l: typeof data.lists) => !l.isSystem,
+              )
+
+              if (!customList) return
+
+              try {
+                await listsService.deleteList(customList.id)
+              } catch (e) {
+                console.log(e)
+              }
+
+              await loadData()
+            }}
+          >
+            <Text>Delete Custom List</Text>
           </Pressable>
         </View>
 

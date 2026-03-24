@@ -96,4 +96,41 @@ export const todosRepository = {
   async getAll() {
     return await db.select().from(todos)
   },
+
+  async getTodosInList(listId: string, tx?: any) {
+    const executor = tx ?? db
+
+    return executor.select().from(listTodos).where(eq(listTodos.listId, listId))
+  },
+
+  async insertPivot(todoId: string, listId: string, tx?: any) {
+    const executor = tx ?? db
+
+    const result = await executor
+      .select({ maxPosition: max(listTodos.position) })
+      .from(listTodos)
+      .where(eq(listTodos.listId, listId))
+
+    const nextPosition = (result[0]?.maxPosition ?? -1) + 1
+
+    await executor.insert(listTodos).values({
+      todoId,
+      listId,
+      position: nextPosition,
+    })
+  },
+
+  async deletePivot(todoId: string, listId: string, tx?: any) {
+    const executor = tx ?? db
+    await executor
+      .delete(listTodos)
+      .where(eq(listTodos.todoId, todoId), eq(listTodos.listId, listId))
+  },
 }
+
+// db.query.todos.findMany({
+//   with: {
+//     listTodos: true,
+//     notifications: true,
+//   },
+// })
