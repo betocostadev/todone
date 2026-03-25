@@ -1,3 +1,4 @@
+import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import { foreignKey, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { createdAt, softDelete, updatedAt } from './_base'
 
@@ -31,3 +32,7 @@ export const todos = sqliteTable(
     }).onDelete('cascade'),
   }),
 )
+
+export type TodoSelect = InferSelectModel<typeof todos>
+export type TodoInsert = InferInsertModel<typeof todos>
+export type TodoIdSelect = { todoId: string }

@@ -195,7 +195,7 @@ export default function DebugDbScreen() {
               loadData()
             }}
           >
-            <Text style={styles.buttonText}>Add Unique Tag</Text>
+            <Text style={styles.buttonText}>Create Unique Tag</Text>
           </Pressable>
         </View>
 
@@ -254,7 +254,7 @@ export default function DebugDbScreen() {
               await loadData()
             }}
           >
-            <Text>Delete Custom List</Text>
+            <Text style={styles.buttonText}>Delete Custom List</Text>
           </Pressable>
         </View>
 
