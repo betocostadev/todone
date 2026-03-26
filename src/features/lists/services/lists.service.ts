@@ -1,30 +1,56 @@
 import { DomainError } from '@/core/errors/DomainError'
 import { db, listTodos, TodoIdSelect } from '@/db'
+import { LIST_TITLE_MAX_LENGTH } from '@/shared/constants'
+import { validateMaxLength } from '@/shared/validation/text.validation'
 import { and, eq, inArray, max, sql } from 'drizzle-orm'
 import { listsRepository } from '../repository/lists.repository'
 
 export const listsService = {
-  async deleteList(listId: string) {
-    const list = await listsRepository.getById(listId)
-    console.log('list to delete: ', list.title)
+  async getAllLists() {
+    return listsRepository.getAll()
+  },
 
-    if (!list) {
-      throw new DomainError('List not found')
+  async getInboxList() {
+    const result = listsRepository.getInbox()
+
+    if (!result) {
+      throw new DomainError('Inbox List not found', 'LIST_INBOX_NOT_FOUND')
+    }
+    return result
+  },
+
+  async getListById(id: string) {
+    const result = listsRepository.getById(id)
+
+    if (!result) {
+      throw new DomainError('List not found', 'LIST_WITH_PROVIDED_ID_MISSING')
+    }
+    return result
+  },
+
+  async createList(title: string, icon?: string, color?: string) {
+    validateMaxLength('List title', title, LIST_TITLE_MAX_LENGTH)
+
+    if (!title.trim()) {
+      throw new DomainError('List title is required', 'LIST_TITLE_EMPTY')
     }
 
+    return listsRepository.create(title, icon, color)
+  },
+
+  async deleteList(listId: string) {
+    const list = await this.getListById(listId)
+
     if (list.isSystem) {
-      throw new DomainError('Cannot delete system list')
+      throw new DomainError(
+        'Cannot delete system list',
+        'LIST_SYSTEM_DELETE_ERROR',
+      )
     }
 
     // Inbox is default list
-    const inbox = await listsRepository.getInbox()
-    console.log('Inbox')
-    console.log(inbox)
-
     // Business rule: tasks from deleted list should be moved to inbox list
-    if (!inbox) {
-      throw new DomainError('Inbox not found')
-    }
+    const inbox = await this.getInboxList()
 
     // get todos already at "Inbox"
     await db.transaction(async (tx) => {
@@ -64,22 +90,8 @@ export const listsService = {
         })
         .where(eq(listTodos.listId, listId))
 
-      // soft delete list
-      await listsRepository.softDelete(listId, tx)
+      // delete list
+      await listsRepository.delete(listId, tx)
     })
-
-    // Deprecated - Test only removal
-    // Replaced for batch operation
-    // await db.transaction(async (tx) => {
-    //   const todos = await todosRepository.getTodosInList(listId, tx)
-
-    //   for (const pivot of todos) {
-    //     await todosRepository.insertPivot(pivot.todo_id, inbox.id, tx)
-
-    //     await todosRepository.deletePivot(pivot.todo_id, listId, tx)
-    //   }
-
-    //   await listsRepository.softDelete(listId, tx)
-    // })
   },
 }

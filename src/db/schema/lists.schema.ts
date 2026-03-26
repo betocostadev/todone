@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { createdAt, softDelete, updatedAt } from './_base'
+import { createdAt, updatedAt } from './_base'
 
 export const lists = sqliteTable('lists', {
   id: text('id').primaryKey(),
@@ -18,7 +18,6 @@ export const lists = sqliteTable('lists', {
 
   ...createdAt,
   ...updatedAt,
-  ...softDelete,
 })
 
 export type ListSelect = InferSelectModel<typeof lists>

@@ -1,4 +1,6 @@
 export const TODO_TITLE_MAX_LENGTH = 128
 export const TODO_NOTE_MAX_LENGTH = 512
 export const TAG_TITLE_MAX_LENGTH = 64
+export const LIST_TITLE_MAX_LENGTH = 64
+
 export const DOMAIN_ERROR_CODE = 'DOMAIN_ERROR'

@@ -4,7 +4,7 @@ import { listTodos } from '@/db/schema/listTodos.schema'
 import { todos } from '@/db/schema/todos.schema'
 import { TODO_NOTE_MAX_LENGTH, TODO_TITLE_MAX_LENGTH } from '@/shared/constants'
 import { validateMaxLength } from '@/shared/validation/text.validation'
-import { and, eq, isNull, max } from 'drizzle-orm'
+import { and, eq, max } from 'drizzle-orm'
 import { v4 as uuidv4 } from 'uuid'
 
 export const todosRepository = {
@@ -29,7 +29,7 @@ export const todosRepository = {
       const inbox = await db
         .select()
         .from(lists)
-        .where(and(eq(lists.isSystem, true), isNull(lists.deletedAt)))
+        .where(eq(lists.isSystem, true))
 
       if (!inbox.length) {
         throw new Error('Inbox list not found')

@@ -1,4 +1,3 @@
-import { listsRepository } from '@/features/lists/repository/lists.repository'
 import { listsService } from '@/features/lists/services/lists.service'
 import { tagsRepository } from '@/features/tags/repository/tags.repository'
 import { todosRepository } from '@/features/todos/repository/todos.repository'
@@ -112,7 +111,7 @@ export default function DebugDbScreen() {
             style={styles.button}
             onPress={async () => {
               try {
-                await listsRepository.create(
+                await listsService.createList(
                   getRandomName('List'),
                   '📱',
                   '#6366f1',
