@@ -1,1 +1,1 @@
-export { default } from '@/features/debug/screens/DebugDebScreen'
+export { default } from '@/features/debug/screens/DebugScreen'

@@ -11,7 +11,7 @@ export const listsService = {
   },
 
   async getInboxList() {
-    const result = listsRepository.getInbox()
+    const result = await listsRepository.getInbox()
 
     if (!result) {
       throw new DomainError('Inbox List not found', 'LIST_INBOX_NOT_FOUND')
@@ -20,7 +20,7 @@ export const listsService = {
   },
 
   async getListById(id: string) {
-    const result = listsRepository.getById(id)
+    const result = await listsRepository.getById(id)
 
     if (!result) {
       throw new DomainError('List not found', 'LIST_WITH_PROVIDED_ID_MISSING')
@@ -35,7 +35,7 @@ export const listsService = {
       throw new DomainError('List title is required', 'LIST_TITLE_EMPTY')
     }
 
-    return listsRepository.create(title, icon, color)
+    return await listsRepository.create(title, icon, color)
   },
 
   async deleteList(listId: string) {

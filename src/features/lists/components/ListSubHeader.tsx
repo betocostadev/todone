@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native'
-
+// Used in lists screens - Title, Tasks remaining
 export default function ListSubheader({
   title,
   numTasksRemaining,
